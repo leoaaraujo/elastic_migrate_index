@@ -1,0 +1,27 @@
+---
+- hosts: all
+  name: Elasticsearch - Migrate Index Data
+  gather_facts: false
+
+  pre_tasks:
+
+    - name: Add configuration elastic reindex
+      lineinfile:
+        path: /etc/elasticsearch/elasticsearch.yml
+        insertafter: '^node.name:*'
+        line: 'reindex.remote.whitelist: {{ OLDHOST }}:9200'
+        backup: yes
+      notify: Restart ElasticSearch
+
+  roles:
+    - elastic_migrate_index
+
+  post_tasks:
+
+    - name: Remove configuration elatic reindex
+      lineinfile:
+        path: /etc/elasticsearch/elasticsearch.yml
+        regexp: '^reindex.remote.whitelist*'
+        state: absent
+        backup: yes
+      notify: Restart ElasticSearch  

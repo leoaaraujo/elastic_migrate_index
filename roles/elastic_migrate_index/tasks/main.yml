@@ -1,0 +1,32 @@
+---
+- name: Get Index name
+  uri:
+    url: "http://{{ OLDHOST }}:9200/_cat/indices?format=json&pretty=true&h=index"
+    return_content: yes
+    method: GET
+    body_format: json
+    validate_certs: false
+  register: index_names
+
+- name: Migrate Indexes
+  uri:
+    url: "http://{{ inventory_hostname }}:9200/_reindex?pretty"
+    method: POST
+    validate_certs: false
+    body_format: json
+    headers:
+      Content-Type: application/json
+    body: |
+      {
+        "source": {
+          "remote": {
+            "host": "http://{{ OLDHOST }}:9200",
+          },
+          "index": "{{ item }}",
+        },
+        "dest": {
+          "index": "{{ item }}"
+        }
+      }
+  loop: "{{ index_names.json | map(attribute='index') | list }}"
+
