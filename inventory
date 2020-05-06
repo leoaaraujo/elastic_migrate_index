@@ -1,5 +1,5 @@
 [nodes]
-172.31.28.177
+x.x.x.x
 
 [nodes:vars]
-OLDHOST=172.31.19.103
+OLDHOST=x.x.x.x
